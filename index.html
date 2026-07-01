@@ -39,6 +39,7 @@
 
         .app-container { max-width: 600px; margin: 0 auto; width: 100%; height: 100dvh; display: flex; flex-direction: column; background: var(--bg-page); }
 
+        /* Шапка в края экрана */
         .app-header { padding: calc(15px + var(--safe-top)) 0 10px; display: flex; align-items: center; justify-content: space-between; z-index: 10; flex-shrink: 0; }
         .header-main { flex: 1; display: flex; align-items: center; overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .header-titles { display: flex; flex-direction: column; align-items: flex-start; overflow: hidden; }
@@ -114,6 +115,7 @@
 
         .sheet-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000; opacity: 0; visibility: hidden; transition: 0.3s; display: flex; align-items: flex-end; }
         .sheet-overlay.active { opacity: 1; visibility: visible; }
+        /* Модалки на ПК не во всю ширину */
         .sheet { background: var(--bg-page); width: 100%; max-width: 600px; margin: 0 auto; border-radius: 24px 24px 0 0; padding: 20px 20px calc(24px + var(--safe-bottom)); transform: translateY(100%); transition: 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); max-height: 90dvh; overflow-y: auto; }
         .sheet-overlay.active .sheet { transform: translateY(0); }
         .sheet-handle { width: 36px; height: 5px; background: var(--text-tertiary); border-radius: 10px; margin: -10px auto 20px; opacity: 0.4; }
@@ -274,6 +276,7 @@
 
         <h4 style="font-size:12px; color:var(--text-tertiary); text-transform:uppercase; margin-bottom:10px; text-align:left; padding-left:5px;">История обновлений</h4>
         <div class="info-group">
+            <div class="log-row"><b>v12</b><span>Исправлен баг с зелеными индикаторами у моделей — теперь они мгновенно обновляются в реальном времени при вводе количества.</span></div>
             <div class="log-row"><b>v11</b><span>Добавлены счетчики количества. Исправлен масштаб интерфейса на ПК (так было надо). Оптимизирована логика свайпов и скролла.</span></div>
             <div class="log-row"><b>v10</b><span>Обновил "зеленые индикаторы", теперь они подсвечивают и заполненою память. СкладРаскладу из истории теперь можно задать своё название. И оно будет отображаться в редакторе, когда СкладРасклад будет открыт для редактирования. А еще у каждого СкладРасклада видны даты создания и изменения. Теперь в выгрузке отображаются и пустые значения, т.к. оказалось удобнее, чем без них.</span></div>
             <div class="log-row"><b>v9</b><span>Первая стабильная версия. Четыре дня мучений не прошли зря :D</span></div>
@@ -388,6 +391,7 @@
 </div>
 
 <script>
+// РЕЖИМ ПРИЛОЖЕНИЯ: 'office'
 const APP_MODE = 'office'; 
 
 const modelsOffice = [
@@ -573,7 +577,7 @@ const app = {
         const m = app.state.curModel, mem = app.state.curMem;
         if(!app.state.stock[m]) app.state.stock[m] = {}; if(!app.state.stock[m][mem]) app.state.stock[m][mem] = {};
         app.state.stock[m][mem][col] = Math.max(0, parseInt(val) || 0);
-        app.save(); app.updateMemHighlights();
+        app.save(); app.updateMemHighlights(); app.updateGroupHighlights();
     },
 
     changeCount(col, delta) {
@@ -581,7 +585,7 @@ const app = {
         if(!app.state.stock[m]) app.state.stock[m] = {}; if(!app.state.stock[m][mem]) app.state.stock[m][mem] = {};
         app.state.stock[m][mem][col] = Math.max(0, (app.state.stock[m][mem][col] || 0) + delta);
         if (window.navigator.vibrate) window.navigator.vibrate(15);
-        app.save(); app.renderColorsOnly(); app.updateMemHighlights();
+        app.save(); app.renderColorsOnly(); app.updateMemHighlights(); app.updateGroupHighlights();
     },
 
     scrollToChip(el) { if (el) el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); },
@@ -640,6 +644,25 @@ const app = {
             const memSize = el.getAttribute('data-mem');
             const hasData = app.state.stock[m]?.[memSize] && Object.values(app.state.stock[m][memSize]).some(v => v > 0);
             el.classList.toggle('filled', !!hasData);
+        });
+    },
+
+    updateGroupHighlights() {
+        document.querySelectorAll('.group-chip').forEach(el => {
+            const name = el.getAttribute('data-name');
+            const hasData = app.state.stock[name] && Object.values(app.state.stock[name]).some(mem => Object.values(mem).some(v => v > 0));
+            let dot = el.querySelector('.dot');
+            if (hasData) {
+                if (!dot) {
+                    dot = document.createElement('div');
+                    dot.className = 'dot';
+                    el.appendChild(dot);
+                }
+            } else {
+                if (dot) {
+                    dot.remove();
+                }
+            }
         });
     },
 
