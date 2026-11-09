@@ -421,7 +421,11 @@ const modelsOffice = [
     { name: "16", mem: ["128","256","512"], col: ["🖤","🤍","🩷","💚","💙"] },
     { name: "16 Plus", mem: ["128","256","512"], col: ["🖤","🤍","🩷","💚","💙"] },
     { name: "16 Pro", mem: ["128","256","512","1TB"], col: ["🖤","🤍","🩶","💛"] },
-    { name: "16 Pro Max", mem: ["256","512","1TB"], col: ["🖤","🤍","🩶","💛"] }
+    { name: "16 Pro Max", mem: ["256","512","1TB"], col: ["🖤","🤍","🩶","💛"] },
+    { name: "17", mem: ["256","512"], col: ["🖤","🤍","💙","💚","💜"] },
+    { name: "17 Pro", mem: ["256","512","1TB"], col: ["🩶","🧡","💙"] },
+    { name: "17 Pro Max", mem: ["256","512","1TB","2TB"], col: ["🩶","🧡","💙"] },
+    { name: "Air", mem: ["256","512","1TB"], col: ["🖤","🤍","💛","💙"] }
 ];
 
 const modelsRetail = [
@@ -443,7 +447,11 @@ const modelsRetail = [
     { name: "15", mem: ["128","256","512"], col: ["🖤","💙","💚","🩷","💛"] },
     { name: "15 Plus", mem: ["128","256"], col: ["🖤","💙","💚","🩷","💛"] },
     { name: "15 Pro", mem: ["128","256"], col: ["🖤","🤍","💙","🩶"] },
-    { name: "15 Pro Max", mem: ["256","512","1TB"], col: ["🖤","🤍","💙","🩶"] }
+    { name: "15 Pro Max", mem: ["256","512","1TB"], col: ["🖤","🤍","💙","🩶"] },
+    { name: "17", mem: ["256","512"], col: ["🖤","🤍","💙","💚","💜"] },
+    { name: "17 Pro", mem: ["256","512","1TB"], col: ["🩶","🧡","💙"] },
+    { name: "17 Pro Max", mem: ["256","512","1TB","2TB"], col: ["🩶","🧡","💙"] },
+    { name: "Air", mem: ["256","512","1TB"], col: ["🖤","🤍","💛","💙"] }
 ];
 
 const app = {
@@ -686,7 +694,7 @@ const app = {
         if(!model) return;
         document.getElementById('curModelName').innerText = `iPhone ${model.name}`;
         const memContainer = document.getElementById('memGroup');
-        memContainer.innerHTML = model.mem.map(m => `<button class="mem-chip ${app.state.curMem === m ? 'active' : ''}" data-mem="${m}" onclick="app.setMem('${m}')">${m === '1TB' ? '1 TB' : m}</button>`).join('');
+        memContainer.innerHTML = model.mem.map(m => `<button class="mem-chip ${app.state.curMem === m ? 'active' : ''}" data-mem="${m}" onclick="app.setMem('${m}')">${m === '2TB' ? '2 TB' : m === '1TB' ? '1 TB' : m}</button>`).join('');
         app.updateMemHighlights();
         const nameEl = document.getElementById('curModelName'); 
         nameEl.classList.remove('marquee-active'); nameEl.style.transform = 'translateX(0)';
@@ -698,7 +706,7 @@ const app = {
     },
 
     save() { localStorage.setItem('sklad_grouped', JSON.stringify(app.state.stock)); },
-    getLabel(emoji, modelName) { if(emoji === "💛") { if(modelName.includes("16 Pro")) return "пустынный"; if(modelName.includes("Pro") || modelName.includes("XS")) return "золотой"; return "жёлтый"; } const map = {"🖤":"чёрный","🤍":"белый","💙":"синий","💚":"зелёный","❤️":"красный","💜":"фиолетовый","🩷":"розовый","🧡":"коралловый","🩶":"титан"}; return map[emoji] || ""; },
+    getLabel(emoji, modelName) { if (modelName === "17 Pro" || modelName === "17 Pro Max") { if (emoji === "🩶") return "белый"; if (emoji === "🧡") return "оранжевый"; } if (modelName === "Air" && emoji === "💛") return "золотой"; if(emoji === "💛") { if(modelName.includes("16 Pro")) return "пустынный"; if(modelName.includes("Pro") || modelName.includes("XS")) return "золотой"; return "жёлтый"; } const map = {"🖤":"чёрный","🤍":"белый","💙":"синий","💚":"зелёный","❤️":"красный","💜":"фиолетовый","🩷":"розовый","🧡":"коралловый","🩶":"титан"}; return map[emoji] || ""; },
     resetEditor() { app.state.stock = {}; app.save(); app.closeSheets(true); app.renderGroupsUI(); app.triggerAnim('model'); app.updateDraftBtnUI(); app.toast("Склад очищен"); },
     finish() { 
         const t = app.gen(); if(!t) return app.toast("СкладРасклад пуст"); 
