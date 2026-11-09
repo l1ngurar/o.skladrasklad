@@ -399,6 +399,7 @@ const modelsOffice = [
     { name: "XS", mem: ["64","256","512"], col: ["🖤","🤍","💛"] },
     { name: "XS Max", mem: ["64","256","512"], col: ["🖤","🤍","💛"] },
     { name: "XR", mem: ["64","128","256"], col: ["🖤","🤍","💙","💛","🧡","❤️"] },
+    { name: "XR в корпусе", mem: ["256"], col: ["🩶"] },
     { name: "11", mem: ["64","128","256"], col: ["🖤","🤍","💚","💛","❤️","💜"] },
     { name: "11 Pro", mem: ["64","256","512"], col: ["🖤","🤍","💚","💛"] },
     { name: "11 Pro Max", mem: ["64","256","512"], col: ["🖤","🤍","💚","💛"] },
@@ -584,16 +585,20 @@ const app = {
     setCount(col, val) {
         const m = app.state.curModel, mem = app.state.curMem;
         if(!app.state.stock[m]) app.state.stock[m] = {}; if(!app.state.stock[m][mem]) app.state.stock[m][mem] = {};
+        const previousCount = app.state.stock[m][mem][col];
         app.state.stock[m][mem][col] = Math.max(0, parseInt(val) || 0);
         app.save(); app.updateMemHighlights(); app.updateGroupHighlights();
+        if (m === "XR в корпусе" && previousCount !== 1 && app.state.stock[m][mem][col] === 1) app.toast("Слишком поздно. Я уже часть корабля... Часть команды. © Билл Тёрнер. Пираты Карибского моря");
     },
 
     changeCount(col, delta) {
         const m = app.state.curModel, mem = app.state.curMem;
         if(!app.state.stock[m]) app.state.stock[m] = {}; if(!app.state.stock[m][mem]) app.state.stock[m][mem] = {};
+        const previousCount = app.state.stock[m][mem][col];
         app.state.stock[m][mem][col] = Math.max(0, (app.state.stock[m][mem][col] || 0) + delta);
         if (window.navigator.vibrate) window.navigator.vibrate(15);
         app.save(); app.renderColorsOnly(); app.updateMemHighlights(); app.updateGroupHighlights();
+        if (m === "XR в корпусе" && previousCount !== 1 && app.state.stock[m][mem][col] === 1) app.toast("Слишком поздно. Я уже часть корабля... Часть команды. © Билл Тёрнер. Пираты Карибского моря");
     },
 
     scrollToChip(el) { if (el) el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); },
